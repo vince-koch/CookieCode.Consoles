@@ -34,9 +34,6 @@ namespace CookieCode.Consoles.Tui.Controls
 
         public override void Render(RenderContext context)
         {
-            var (x, y) = Console.GetCursorPosition();
-            Cursor = new Point(x + 2, y);
-
             Console.ForegroundColor = context.Focus == this
                 ? ConsoleColor.Black
                 : ConsoleColor.Gray;
@@ -46,8 +43,10 @@ namespace CookieCode.Consoles.Tui.Controls
                 : ConsoleColor.Black;
 
             Console.Write($"[ {Text} ]");
-
             Console.ResetColor();
+
+            var (x, y) = Console.GetCursorPosition();
+            Cursor = new Point(x - 2, y);
         }
     }
 }

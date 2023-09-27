@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 
 namespace CookieCode.Consoles.Tui
 {
@@ -123,6 +115,7 @@ namespace CookieCode.Consoles.Tui
 
             if (Focus != null && Focus.CanFocus && Focus.Cursor != null)
             {
+                var w = Console.WindowWidth;
                 Console.SetCursorPosition(Focus.Cursor.Value.X, Focus.Cursor.Value.Y);
                 Console.CursorVisible = true;
             }

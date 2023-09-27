@@ -10,6 +10,9 @@ namespace CookieCode.Consoles.Test
             var counter = 0;
 
             new Application()
+                .AddChild(new Label($" IsWindows={OperatingSystem.IsWindows()} "))
+                .AddChild(new Label($" IsLinux={OperatingSystem.IsLinux()} "))
+                .AddChild(new HorizontalRule())
                 .AddChild(new Button("- 100", (s, e) => counter -= 100))
                 .AddChild(new Button("- 10", (s, e) => counter -= 10))
                 .AddChild(new Button("- 1", (s, e) => counter -= 1))
