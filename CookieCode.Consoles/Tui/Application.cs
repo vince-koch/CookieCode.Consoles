@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using CookieCode.Consoles.Drivers;
+using System.Diagnostics;
+using System.Drawing;
 
 namespace CookieCode.Consoles.Tui
 {
@@ -56,9 +58,16 @@ namespace CookieCode.Consoles.Tui
     [DebuggerDisplay("Application")]
     public class Application : Container
     {
+        private readonly IConsole _console;
+
         public bool IsExitRequested { get; set; }
 
         public Control? Focus { get; set; }
+
+        public Application(IConsole console)
+        {
+            _console = console;
+        }
 
         public void Run()
         {
@@ -107,28 +116,33 @@ namespace CookieCode.Consoles.Tui
 
         public virtual void Render()
         {
-            Console.CursorVisible = false;
-            Console.Clear();
+            _console.SetCursorVisible(false);
+            _console.Clear();
 
-            var context = new RenderContext { Focus = Focus };
+            var context = new RenderContext(_console, Focus);
             Render(context);
 
             if (Focus != null && Focus.CanFocus && Focus.Cursor != null)
             {
-                var w = Console.WindowWidth;
-                Console.SetCursorPosition(Focus.Cursor.Value.X, Focus.Cursor.Value.Y);
-                Console.CursorVisible = true;
+                _console.SetCursorPosition(Focus.Cursor.Value);
+                _console.SetCursorVisible(true);
             }
         }
     }
 
     public class RenderContext
     {
-        public Control? Focus { get; set;  }
+        public IConsole Console { get; }
 
-        public int Width { get; }
+        public Control? Focus { get; }
 
-        public int Height { get; }
+        public RenderContext(
+            IConsole console,
+            Control? focus)
+        {
+            Console = console;
+            Focus = focus;
+        }
 
         public BufferChar this[int x, int y]
         {

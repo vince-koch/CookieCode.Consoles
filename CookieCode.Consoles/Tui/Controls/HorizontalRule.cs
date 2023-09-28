@@ -1,17 +1,28 @@
-﻿namespace CookieCode.Consoles.Tui.Controls
+﻿using CookieCode.Consoles.Colors;
+using System.Drawing;
+
+namespace CookieCode.Consoles.Tui.Controls
 {
     public class HorizontalRule : Control
     {
+        public Color ForeColor { get; set; } = DraculaColors.Comment;
+
+        public Color BackColor { get; set; } = Color.Transparent;
+
         public override void Render(RenderContext context)
         {
-            if (Console.CursorLeft != 0)
+            var pos = context.Console.GetCursorPosition();
+            if (pos.X != 0)
             {
-                Console.WriteLine();
+                context.Console.WriteLine();
             }
 
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.Write(new string('-', Console.WindowWidth));
-            Console.ResetColor();
+            context.Console.WriteLine(
+                new string('-', context.Console.GetWindowWidth()),
+                ForeColor,
+                BackColor);
+
+            context.Console.ResetColor();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using CookieCode.Consoles.Colors;
+using System.Diagnostics;
 using System.Drawing;
 
 namespace CookieCode.Consoles.Tui.Controls
@@ -7,6 +8,12 @@ namespace CookieCode.Consoles.Tui.Controls
     public class TextBox : Control
     {
         public override bool CanFocus => true;
+
+        public Color ForeColor { get; set; } = BootstrapColors.Black;
+
+        public Color BackColor { get; set; } = BootstrapColors.Gray500;
+
+        public Color PlaceholderColor { get; set; } = BootstrapColors.Gray700;
 
         public BindSource<string?> Placeholder { get; set; } = string.Empty;
 
@@ -73,25 +80,28 @@ namespace CookieCode.Consoles.Tui.Controls
 
         public override void Render(RenderContext context)
         {
-            var (x, y) = Console.GetCursorPosition();
+            var (x, y) = context.Console.GetCursorPosition();
             Cursor = new Point(x + _cursorIndex, y);
 
-            var isPlaceHolder = string.IsNullOrWhiteSpace(Text); 
-            var textOrPlaceHolder = string.IsNullOrWhiteSpace(Text) ? Placeholder : Text;
+            var back = context.Focus == this ? BackColor.Brightness(.3f) : BackColor;
 
-            Console.ForegroundColor = isPlaceHolder
-                ? ConsoleColor.DarkGray
-                : context.Focus == this
-                    ? ConsoleColor.Black
-                    : ConsoleColor.Gray;
+            var text = Text.ToString();
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                context.Console.Write(
+                    Placeholder?.ToString() ?? string.Empty,
+                    PlaceholderColor,
+                    back);
+            }
+            else
+            {
+                context.Console.Write(
+                    text,
+                    ForeColor,
+                    back);
+            }
 
-            Console.BackgroundColor = context.Focus == this
-                ? ConsoleColor.Yellow
-                : ConsoleColor.Black;
-
-            Console.Write($"{textOrPlaceHolder}");
-
-            Console.ResetColor();
+            context.Console.ResetColor();
         }
     }
 }

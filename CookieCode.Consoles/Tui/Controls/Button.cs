@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using CookieCode.Consoles.Colors;
+using System.Diagnostics;
 using System.Drawing;
 
 namespace CookieCode.Consoles.Tui.Controls
@@ -9,6 +10,8 @@ namespace CookieCode.Consoles.Tui.Controls
         public event EventHandler<Button>? Click;
 
         public override bool CanFocus => true;
+
+        public Color BackColor { get; set; } = BootstrapColors.Primary;
 
         public BindSource<string?> Text { get; set; } = "Button";
 
@@ -34,16 +37,15 @@ namespace CookieCode.Consoles.Tui.Controls
 
         public override void Render(RenderContext context)
         {
-            Console.ForegroundColor = context.Focus == this
-                ? ConsoleColor.Black
-                : ConsoleColor.Gray;
+            var back = context.Focus == this ? BackColor.Brightness(.2f) : BackColor;
+            var fore = back.FgForBg();
 
-            Console.BackgroundColor = context.Focus == this
-                ? ConsoleColor.Yellow
-                : ConsoleColor.Black;
+            context.Console.Write(
+                text: $"[ {Text} ]",
+                fore: back.FgForBg(),
+                back: back);
 
-            Console.Write($"[ {Text} ]");
-            Console.ResetColor();
+            context.Console.ResetColor();
 
             var (x, y) = Console.GetCursorPosition();
             Cursor = new Point(x - 2, y);
