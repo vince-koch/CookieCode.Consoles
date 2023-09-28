@@ -12,6 +12,8 @@ namespace CookieCode.Consoles.Tui
 
         public Container? Parent { get; internal set; }
 
+        public Dimension Width { get; set; } = Dimension.Auto();
+
         public virtual void HandleKeyEvent(ConsoleKeyInfoEventArgs e)
         {
             HandleTabKey(e);

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Win32.SafeHandles;
 using System.Runtime.InteropServices;
 
-namespace CookieCode.Consoles.Tui
+namespace CookieCode.Consoles.Drivers
 {
     /// <summary>
     /// https://github.com/crowfingers/FastConsole/blob/master/FastConsole.cs
@@ -64,8 +64,8 @@ namespace CookieCode.Consoles.Tui
 
             GetOutputHandle();
 
-            width = (short)(Console.WindowWidth);
-            height = (short)(Console.WindowHeight);
+            width = (short)Console.WindowWidth;
+            height = (short)Console.WindowHeight;
             left = 0;
             top = 0;
 
@@ -79,7 +79,7 @@ namespace CookieCode.Consoles.Tui
         static void Maximize()
         {
             [DllImport("user32.dll")]
-            static extern bool ShowWindow(System.IntPtr hWnd, int cmdShow);
+            static extern bool ShowWindow(IntPtr hWnd, int cmdShow);
 
             [DllImport("kernel32.dll", ExactSpelling = true)]
             static extern IntPtr GetConsoleWindow();
@@ -131,7 +131,7 @@ namespace CookieCode.Consoles.Tui
             set
             {
                 _ForegroundColor = value;
-                Console.ForegroundColor = (System.ConsoleColor)value;
+                Console.ForegroundColor = value;
             }
         }
 
@@ -142,7 +142,7 @@ namespace CookieCode.Consoles.Tui
             set
             {
                 _BackgroundColor = value;
-                Console.BackgroundColor = (System.ConsoleColor)value;
+                Console.BackgroundColor = value;
             }
         }
 
