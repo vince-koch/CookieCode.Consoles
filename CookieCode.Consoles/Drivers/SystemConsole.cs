@@ -26,9 +26,11 @@ namespace CookieCode.Consoles.Drivers
                 : _title;
         }
         
-        public virtual (int X, int Y) GetCursorPosition()
+        public virtual Point GetCursorPosition()
         {
-            return  Console.GetCursorPosition();
+            var (x, y) = Console.GetCursorPosition();
+            var point = new Point(x, y);
+            return point;
         }
 
         public virtual bool GetCursorVisible()
@@ -38,14 +40,14 @@ namespace CookieCode.Consoles.Drivers
                 : _isCursorVisible;
         }
 
-        public virtual int GetWindowHeight()
+        public virtual Size GetWindowSize()
         {
-            return Console.WindowHeight;
+            return new Size(Console.WindowWidth, Console.WindowHeight);
         }
 
-        public virtual int GetWindowWidth()
+        public virtual Size GetBufferSize()
         {
-            return Console.WindowWidth;
+            return new Size(Console.BufferWidth, Console.BufferHeight);
         }
 
         public virtual IConsole SetCursorPosition(int x, int y)

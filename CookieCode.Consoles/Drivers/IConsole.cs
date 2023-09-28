@@ -7,14 +7,13 @@ namespace CookieCode.Consoles.Drivers
         IConsole Clear();
         IConsole ResetColor();
 
-        (int X, int Y) GetCursorPosition();
+        Point GetCursorPosition();
         bool GetCursorVisible();
         string GetTitle();
-        int GetWindowHeight();
-        int GetWindowWidth();
-        
+        Size GetWindowSize();
+        Size GetBufferSize();
+
         IConsole SetCursorPosition(Point cursor);
-        IConsole SetCursorPosition(int x, int y);
         IConsole SetCursorVisible(bool visible);
         IConsole SetTitle(string title);
 

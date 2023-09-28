@@ -64,6 +64,8 @@ namespace CookieCode.Consoles.Tui
 
         public Control? Focus { get; set; }
 
+        public Size WindowSize { get; private set; }
+
         public Application(IConsole console)
         {
             _console = console;
@@ -75,20 +77,26 @@ namespace CookieCode.Consoles.Tui
 
             Console.CancelKeyPress += (object? sender, ConsoleCancelEventArgs e) =>
             {
+                Debug.WriteLine($"CancelKeyPress", "Tui.Application");
+                IsExitRequested = true; 
                 e.Cancel = true;
-                IsExitRequested = true;
             };
 
+            WindowSize = _console.GetWindowSize();
             Focus = this.Flatten().FirstOrDefault(control => control.CanFocus);
             Render();
 
             while (!IsExitRequested)
             {
-                if (Console.KeyAvailable)
+                Thread.Sleep(100);
+
+                // process key events
+                while (Console.KeyAvailable)
                 {
                     var consoleKey = Console.ReadKey(true);
-                    var keyEventArgs = new ConsoleKeyInfoEventArgs(consoleKey);
+                    Debug.WriteLine($"KeyPressed: {consoleKey}", "Tui.Application");
 
+                    var keyEventArgs = new ConsoleKeyInfoEventArgs(consoleKey);
                     var eventTarget = Focus ?? this;
                     while (keyEventArgs.IsHandled == false && eventTarget != null)
                     {
@@ -99,6 +107,15 @@ namespace CookieCode.Consoles.Tui
                         }
                     }
 
+                    Render();
+                }
+
+                // pseudo window resize
+                var windowSize = _console.GetWindowSize();
+                if (WindowSize != windowSize)
+                {
+                    Debug.WriteLine($"WindowResize: {WindowSize} ==> {windowSize}", "Tui.Application");
+                    WindowSize = windowSize;
                     Render();
                 }
             }

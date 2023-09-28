@@ -38,6 +38,7 @@ namespace CookieCode.Consoles.Tui.Controls
                         var charList = Text.ToString().ToCharArray().ToList();
                         charList.RemoveAt(_cursorIndex);
                         Text = new string(charList.ToArray());
+                        e.IsHandled = true;
                     }
                     break;
                         
@@ -47,32 +48,44 @@ namespace CookieCode.Consoles.Tui.Controls
                         var charList = Text.ToString().ToCharArray().ToList();
                         charList.RemoveAt(_cursorIndex);
                         Text = new string(charList.ToArray());
+                        e.IsHandled = true;
                     }
                     break;
 
                 case ConsoleKey.RightArrow:
                     _cursorIndex = Math.Min(_cursorIndex + 1, Text.ToString().Length);
+                    e.IsHandled = true;
                     break;
 
                 case ConsoleKey.LeftArrow:
                     _cursorIndex = Math.Max(_cursorIndex - 1, 0);
+                    e.IsHandled = true;
                     break;
 
                 case ConsoleKey.Home:
                     _cursorIndex = 0;
+                    e.IsHandled = true;
                     break;
 
                 case ConsoleKey.End:
                     _cursorIndex = Text.ToString().Length;
+                    e.IsHandled = true;
                     break;
 
                 default:
                     if (e.Key.KeyChar != 0)
-                    { 
-                        var charList = Text.ToString().ToCharArray().ToList();
-                        charList.Insert(_cursorIndex, e.Key.KeyChar);
-                        Text = new string(charList.ToArray());
-                        _cursorIndex++;
+                    {
+                        if (char.IsLetterOrDigit(e.Key.KeyChar)
+                            || char.IsPunctuation(e.Key.KeyChar)
+                            || char.IsSymbol(e.Key.KeyChar)
+                            || char.IsSeparator(e.Key.KeyChar))
+                        {
+                            var charList = Text.ToString().ToCharArray().ToList();
+                            charList.Insert(_cursorIndex, e.Key.KeyChar);
+                            Text = new string(charList.ToArray());
+                            _cursorIndex++;
+                            e.IsHandled = true;
+                        }
                     }
                     break;
             }
@@ -80,8 +93,9 @@ namespace CookieCode.Consoles.Tui.Controls
 
         public override void Render(RenderContext context)
         {
-            var (x, y) = context.Console.GetCursorPosition();
-            Cursor = new Point(x + _cursorIndex, y);
+            var cursor = context.Console.GetCursorPosition();
+            cursor.Offset(_cursorIndex, 0);
+            Cursor = cursor;
 
             var back = context.Focus == this ? BackColor.Brightness(.3f) : BackColor;
 

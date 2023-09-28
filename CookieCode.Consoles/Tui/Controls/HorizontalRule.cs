@@ -18,7 +18,7 @@ namespace CookieCode.Consoles.Tui.Controls
             }
 
             context.Console.WriteLine(
-                new string('-', context.Console.GetWindowWidth()),
+                new string('-', context.Console.GetWindowSize().Width),
                 ForeColor,
                 BackColor);
 
