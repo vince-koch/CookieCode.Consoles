@@ -6,6 +6,8 @@ namespace CookieCode.Consoles.Drivers
     {
         public override IConsole Write(string text, Color fore, Color back)
         {
+            Console.ResetColor();
+
             if (fore != Color.Transparent)
             {
                 Console.Write(Ansi.Fg(fore));

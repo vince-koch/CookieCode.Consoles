@@ -39,5 +39,44 @@
 
             return areEqual;
         }
+
+        public static int[] CalculateAbsoluteValues(IEnumerable<Dimension> dimensions, int maxValue)
+        {
+            var absoluteValues = new int[dimensions.Count()];
+
+            // copy absolute widths
+            dimensions.ForEach((dimension, index) =>
+            {
+                absoluteValues[index] = dimension.DimensionType == DimensionType.Absolute ? dimension.Value : 0;
+            });
+
+            // calculate percentage widths
+            var remainingValue = maxValue - absoluteValues.Sum();
+            dimensions.ForEach((dimension, index) =>
+            {
+                if (dimension.DimensionType == DimensionType.Percent)
+                {
+                    var percent = Math.Clamp(dimension.Value, 0, 100);
+                    var width = remainingValue * (percent / (decimal)100);
+                    absoluteValues[index] = (int)width;
+                }
+            });
+
+            // calculate auto widths
+            var autoCount = dimensions.Count(dimension => dimension.DimensionType == DimensionType.Auto);
+            if (autoCount > 0)
+            {
+                var autoWidth = (maxValue - absoluteValues.Sum()) / autoCount;
+                dimensions.ForEach((dimension, index) =>
+                {
+                    if (dimension.DimensionType == DimensionType.Auto)
+                    {
+                        absoluteValues[index] = autoWidth;
+                    }
+                });
+            }
+
+            return absoluteValues;
+        }
     }
 }

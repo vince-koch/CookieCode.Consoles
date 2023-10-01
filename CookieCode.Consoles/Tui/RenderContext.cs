@@ -28,7 +28,8 @@ namespace CookieCode.Consoles.Tui
             Focus = context.Focus;
             _image = context._image;
             _clip = clip;
-            _clip.Intersect(context._clip);
+            _clip.Offset(context._clip.Location);
+            _clip.Intersect(new Rectangle(Point.Empty, _image.Size));
         }
 
         public Pixel? this[int x, int y]

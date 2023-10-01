@@ -1,69 +1,82 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace CookieCode.Consoles.Tui.Controls
 {
-    public class Row : Container
+    public class Row : Control
     {
+        private readonly List<Dimension> _columnWidths;
+        private readonly List<Control> _children;
+
+        public Row() : this(0)
+        {
+        }
+
+        public Row(int columns) : this(Enumerable.Range(0, columns).Select(i => Dimension.Auto()))
+        {
+            
+        }
+
+        public Row(IEnumerable<Dimension> columnWidths)
+        {
+            _columnWidths = columnWidths.ToList();
+            _children = new List<Control>(_columnWidths.Count);
+        }
+
+        public Row SetColumnWidths(params Dimension[] widths)
+        {
+            for (var x = 0; x < _columnWidths.Count; x++)
+            {
+                _columnWidths[x] = widths[x];
+            }
+
+            return this;
+        }
+
+        public Row SetColumnWidth(int column, Dimension width)
+        {
+            _columnWidths[column] = width;
+            return this;
+        }
+
+        public Row SetChild(int x, Control control)
+        {
+            _children[x] = control;
+            return this;
+        }
+
+        public Row AddChild(Control control, Dimension? dimension = null)
+        {
+            _columnWidths.Add(dimension ?? Dimension.Auto());
+            _children.Add(control);
+            return this;
+        }
+
         public override void Render(RenderContext context)
         {
-            var windowSize = context.Size;
-            var cellWidths = CalculateCellWidths(windowSize.Width);
+            var widths = Dimension.CalculateAbsoluteValues(_columnWidths, context.Size.Width);
 
-            //var position = context.Console.GetCursorPosition();
-            var children = Children.ToList();
-
-            for (var i = 0; i < children.Count; i++)
+            for (var x = 0; x < _columnWidths.Count; x++)
             {
-                var child = children[i];
-                if (child.IsVisible)
+                var child = _children[x];
+                if (child != null)
                 {
-                    var x = cellWidths.Take(i).Sum();
-                    var width = cellWidths[i];
+                    // TODO: account for extra colspans / rowspans
+                    var childRectangle = new Rectangle(
+                        widths.Take(x).Sum(),
+                        0,
+                        widths[x],
+                        context.Size.Height);
 
-                    var childContext = new RenderContext(context, new Rectangle(x, 0, width, 1));
+                    var childContext = new RenderContext(context, childRectangle);
+
                     child.Render(childContext);
                 }
             }
-        }
-
-        private int[] CalculateCellWidths(int containerWidth)
-        {
-            var children = Children.ToArray();
-            var cellWidths = new int[children.Length];
-
-            // copy absolute widths
-            children.ForEach((control, index) =>
-            {
-                cellWidths[index] = control.Width.DimensionType == DimensionType.Absolute ? control.Width.Value : 0;
-            });
-
-            // calculate percentage widths
-            var remainingWidth = containerWidth - cellWidths.Sum();
-            children.ForEach((control, index) =>
-            {
-                if (control.Width.DimensionType == DimensionType.Percent)
-                {
-                    var percent = Math.Clamp(control.Width.Value, 0, 100);
-                    var width = remainingWidth * (percent / (decimal)100);
-                    cellWidths[index] = (int)width;
-                }
-            });
-
-            // calculate auto widths
-            var autoCount = children.Count(control => control.Width.DimensionType == DimensionType.Auto);
-            if (autoCount > 0)
-            {
-                var autoWidth = (containerWidth - cellWidths.Sum()) / autoCount;
-                children.ForEach((control, index) =>
-                {
-                    if (control.Width.DimensionType == DimensionType.Auto)
-                    {
-                        cellWidths[index] = autoWidth;
-                    }
-                });
-            }
-
-            return cellWidths;
         }
     }
 }

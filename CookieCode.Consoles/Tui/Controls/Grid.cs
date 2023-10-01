@@ -54,7 +54,7 @@ namespace CookieCode.Consoles.Tui.Controls
             return this;
         }
 
-        public Grid AddChild(int x, int y, Control control)
+        public Grid SetChild(int x, int y, Control control)
         {
             Children[x, y] = control;
             return this;
@@ -62,8 +62,8 @@ namespace CookieCode.Consoles.Tui.Controls
 
         public override void Render(RenderContext context)
         {
-            var widths = CalculateAbsoluteValues(ColumnWidths, context.Size.Width);
-            var heights = CalculateAbsoluteValues(RowHeights, context.Size.Height);
+            var widths = Dimension.CalculateAbsoluteValues(ColumnWidths, context.Size.Width);
+            var heights = Dimension.CalculateAbsoluteValues(RowHeights, context.Size.Height);
 
             for (var y = 0; y < RowHeights.Length; y++)
             {
@@ -85,45 +85,6 @@ namespace CookieCode.Consoles.Tui.Controls
                     }
                 }
             }
-        }
-
-        private int[] CalculateAbsoluteValues(Dimension[] dimensions, int maxValue)
-        {
-            var absoluteValues = new int[dimensions.Length];
-
-            // copy absolute widths
-            dimensions.ForEach((dimension, index) =>
-            {
-                absoluteValues[index] = dimension.DimensionType == DimensionType.Absolute ? dimension.Value : 0;
-            });
-
-            // calculate percentage widths
-            var remainingValue = maxValue - absoluteValues.Sum();
-            dimensions.ForEach((dimension, index) =>
-            {
-                if (dimension.DimensionType == DimensionType.Percent)
-                {
-                    var percent = Math.Clamp(dimension.Value, 0, 100);
-                    var width = remainingValue * (percent / (decimal)100);
-                    absoluteValues[index] = (int)width;
-                }
-            });
-
-            // calculate auto widths
-            var autoCount = dimensions.Count(dimension => dimension.DimensionType == DimensionType.Auto);
-            if (autoCount > 0)
-            {
-                var autoWidth = (maxValue - absoluteValues.Sum()) / autoCount;
-                dimensions.ForEach((dimension, index) =>
-                {
-                    if (dimension.DimensionType == DimensionType.Auto)
-                    {
-                        absoluteValues[index] = autoWidth;
-                    }
-                });
-            }
-
-            return absoluteValues;
         }
     }
 }

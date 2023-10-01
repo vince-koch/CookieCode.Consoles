@@ -21,6 +21,12 @@ namespace CookieCode.Consoles.Tui.Controls
             Text = text;
         }
 
+        public Label SetColor(Color foreColor)
+        {
+            ForeColor = foreColor;
+            return this;
+        }
+
         public override void Render(RenderContext context)
         {
             context.Write(

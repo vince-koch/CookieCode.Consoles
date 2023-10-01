@@ -179,7 +179,13 @@ namespace CookieCode.Consoles.Tui
                         || y >= _screen.Rows 
                         || sourcePixel != _screen.GetValue(x, y))
                     {
-                        _console.Write(sourcePixel.Character.ToString(), x, y, sourcePixel.ForeColor, sourcePixel.BackColor);
+                        _console.Write(
+                            sourcePixel.Character.ToString(),
+                            x,
+                            y, 
+                            sourcePixel.ForeColor == Color.Transparent ? _foreColor : sourcePixel.ForeColor,
+                            sourcePixel.BackColor == Color.Transparent ? _backColor : sourcePixel.BackColor);
+
                         pixelsUpdated++;
                     }
                 }

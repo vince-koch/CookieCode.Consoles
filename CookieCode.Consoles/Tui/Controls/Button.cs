@@ -25,6 +25,12 @@ namespace CookieCode.Consoles.Tui.Controls
             Click += click;
         }
 
+        public Button SetColor(Color backColor)
+        {
+            BackColor = backColor;
+            return this;
+        }
+
         public override void HandleKeyEvent(ConsoleKeyInfoEventArgs e)
         {
             HandleTabKey(e);
