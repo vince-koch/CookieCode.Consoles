@@ -40,15 +40,13 @@ namespace CookieCode.Consoles.Tui.Controls
             var back = context.Focus == this ? BackColor.Brightness(.2f) : BackColor;
             var fore = back.FgForBg();
 
-            context.Console.Write(
+            context.Write(
                 text: $"[ {Text} ]",
-                fore: back.FgForBg(),
-                back: back);
+                foreColor: back.FgForBg(),
+                backColor: back);
 
-            context.Console.ResetColor();
-
-            var (x, y) = Console.GetCursorPosition();
-            Cursor = new Point(x - 2, y);
+            //var (x, y) = Console.GetCursorPosition();
+            //Cursor = new Point(x - 2, y);
         }
     }
 }

@@ -1,4 +1,6 @@
 ﻿using CookieCode.Consoles.Colors;
+using CookieCode.Core.Consoles;
+
 using System.Drawing;
 
 namespace CookieCode.Consoles.Tui.Controls
@@ -11,18 +13,10 @@ namespace CookieCode.Consoles.Tui.Controls
 
         public override void Render(RenderContext context)
         {
-            var pos = context.Console.GetCursorPosition();
-            if (pos.X != 0)
-            {
-                context.Console.WriteLine();
-            }
-
-            context.Console.WriteLine(
-                new string('-', context.Console.GetWindowSize().Width),
+            context.Write(
+                new string(Borders.Single.Horizontal, context.Size.Width),
                 ForeColor,
                 BackColor);
-
-            context.Console.ResetColor();
         }
     }
 }

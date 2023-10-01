@@ -23,12 +23,10 @@ namespace CookieCode.Consoles.Tui.Controls
 
         public override void Render(RenderContext context)
         {
-            context.Console.Write(
-                Text?.ToString() ?? string.Empty,
+            context.Write(
+                Text,
                 ForeColor,
                 BackColor);
-
-            context.Console.ResetColor();
         }
     }
 }

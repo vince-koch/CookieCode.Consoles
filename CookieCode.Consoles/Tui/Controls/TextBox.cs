@@ -93,29 +93,27 @@ namespace CookieCode.Consoles.Tui.Controls
 
         public override void Render(RenderContext context)
         {
-            var cursor = context.Console.GetCursorPosition();
-            cursor.Offset(_cursorIndex, 0);
-            Cursor = cursor;
+            //var cursor = context.Console.GetCursorPosition();
+            //cursor.Offset(_cursorIndex, 0);
+            //Cursor = cursor;
 
             var back = context.Focus == this ? BackColor.Brightness(.3f) : BackColor;
 
             var text = Text.ToString();
             if (string.IsNullOrWhiteSpace(text))
             {
-                context.Console.Write(
-                    Placeholder?.ToString() ?? string.Empty,
+                context.Write(
+                    Placeholder?.ToString(),
                     PlaceholderColor,
                     back);
             }
             else
             {
-                context.Console.Write(
+                context.Write(
                     text,
                     ForeColor,
                     back);
             }
-
-            context.Console.ResetColor();
         }
     }
 }

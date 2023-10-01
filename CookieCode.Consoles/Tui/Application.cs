@@ -1,64 +1,20 @@
 ﻿using CookieCode.Consoles.Drivers;
+using CookieCode.Core.Consoles;
+
+using System;
 using System.Diagnostics;
 using System.Drawing;
+using System.Text;
 
 namespace CookieCode.Consoles.Tui
 {
-    public class MultiDimensionalArray<TItem>
-    {
-        public int Width { get; }
-
-        public int Height { get; }
-
-        public TItem[] Array { get; }
-
-        public TItem this[int x, int y]
-        {
-            get { return Array[y * Width + x]; }
-            set { Array[y * Width + x] = value; }
-        }
-
-        public MultiDimensionalArray(int width, int height, TItem[] array)
-        {
-            if (array.Length != width * height)
-            {
-                throw new InvalidOperationException($"Expected array of length {width}*{height}={width * height}, but received length={array.Length}");
-            }
-
-            Width = width;
-            Height = height;
-            Array = array;
-        }
-    }
-
-    public class BufferChar
-    {
-        public Color BackColor { get; set; }
-        public Color ForeColor { get; set; }
-        public char Character { get; set; }
-
-        public BufferChar(Color foreColor, Color backColor, char character)
-        {
-            ForeColor = foreColor;
-            BackColor = backColor;
-            Character = character;
-        }
-    }
-
-    public class Buffer : MultiDimensionalArray<BufferChar>
-    {
-        public Buffer(int width, int height, Color foreColor, Color backColor, char character)
-            : base(width, height, Enumerable.Range(0, width * height)
-                .Select(index => new BufferChar(foreColor, backColor, character))
-                .ToArray())
-        {
-        }
-    }
-
     [DebuggerDisplay("Application")]
     public class Application : Container
     {
         private readonly IConsole _console;
+        private readonly Color _foreColor;
+        private readonly Color _backColor;
+        private Image _screen;
 
         public bool IsExitRequested { get; set; }
 
@@ -66,26 +22,43 @@ namespace CookieCode.Consoles.Tui
 
         public Size WindowSize { get; private set; }
 
-        public Application(IConsole console)
+        public Application(IConsole console, Color? foreColor = null, Color? backColor = null)
         {
             _console = console;
+            _console.Clear();
+
+            _foreColor = foreColor ?? Color.Gray;
+            _backColor = backColor ?? Color.Black;
+
+            var screen = new Image(
+                console.GetWindowSize(),
+                _foreColor,
+                _backColor,
+                ' ');
+
+            RenderImage(screen);
+
+            _screen = screen;
         }
 
         public void Run()
         {
             IsExitRequested = false;
 
-            Console.CancelKeyPress += (object? sender, ConsoleCancelEventArgs e) =>
-            {
-                Debug.WriteLine($"CancelKeyPress", "Tui.Application");
-                IsExitRequested = true; 
-                e.Cancel = true;
-            };
+            Console.TreatControlCAsInput = true;
 
             WindowSize = _console.GetWindowSize();
             Focus = this.Flatten().FirstOrDefault(control => control.CanFocus);
             Render();
 
+            RunMessageLoop();
+
+            _console.ResetColor();
+            _console.Clear();
+        }
+
+        protected virtual void RunMessageLoop()
+        {
             while (!IsExitRequested)
             {
                 Thread.Sleep(100);
@@ -95,6 +68,17 @@ namespace CookieCode.Consoles.Tui
                 {
                     var consoleKey = Console.ReadKey(true);
                     Debug.WriteLine($"KeyPressed: {consoleKey}", "Tui.Application");
+
+                    // check for ctrl+c
+                    if (consoleKey.Key == ConsoleKey.C && consoleKey.Modifiers.HasControl())
+                    {
+                        return;
+                    }
+
+                    if (consoleKey.KeyChar == '?')
+                    {
+                        WriteImage(_screen);
+                    }
 
                     var keyEventArgs = new ConsoleKeyInfoEventArgs(consoleKey);
                     var eventTarget = Focus ?? this;
@@ -111,12 +95,30 @@ namespace CookieCode.Consoles.Tui
                 }
 
                 // pseudo window resize
-                var windowSize = _console.GetWindowSize();
-                if (WindowSize != windowSize)
+                while (WindowSize != _console.GetWindowSize())
                 {
-                    Debug.WriteLine($"WindowResize: {WindowSize} ==> {windowSize}", "Tui.Application");
-                    WindowSize = windowSize;
-                    Render();
+                    try
+                    {
+                        var windowSize = _console.GetWindowSize();
+                        Debug.WriteLine($"WindowResize: {WindowSize} ==> {windowSize}", "Tui.Application");
+
+                        var screen = new Image(
+                            windowSize,
+                            _foreColor,
+                            _backColor,
+                            ' ');
+
+                        if (windowSize == _console.GetWindowSize())
+                        {
+                            RenderImage(screen, true);
+                            Render();
+
+                            WindowSize = windowSize;
+                        }
+                    }
+                    catch (Exception /* ignored */)
+                    {
+                    }
                 }
             }
         }
@@ -134,39 +136,91 @@ namespace CookieCode.Consoles.Tui
         public virtual void Render()
         {
             _console.SetCursorVisible(false);
-            _console.Clear();
 
-            var context = new RenderContext(_console, Focus);
-            Render(context);
+            var screen = new Image(_screen);
+            var clip = new Rectangle(Point.Empty, screen.Size);
+            var context = new RenderContext(Focus, screen, clip);
+            base.Render(context);
+            RenderImage(screen);
 
             if (Focus != null && Focus.CanFocus && Focus.Cursor != null)
             {
                 _console.SetCursorPosition(Focus.Cursor.Value);
                 _console.SetCursorVisible(true);
             }
-        }
-    }
 
-    public class RenderContext
-    {
-        public IConsole Console { get; }
-
-        public Control? Focus { get; }
-
-        public RenderContext(
-            IConsole console,
-            Control? focus)
-        {
-            Console = console;
-            Focus = focus;
+            _console.ResetColor();
         }
 
-        public BufferChar this[int x, int y]
+        protected void RenderImage(Image source, bool force = false)
         {
-            set
+            if (source.Size != _console.GetWindowSize())
             {
-                //Array[y * Width + x] = value;
+                //throw new Exception("Image is not same size as console window");
+                return;
             }
+
+            var pixelsUpdated = 0;
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            var priorValue = _console.GetCursorVisible();
+            _console.SetCursorVisible(false);
+
+            for (var y = 0; y < source.Rows; y++)
+            {
+                for (var x = 0; x < source.Columns; x++)
+                {
+                    var sourcePixel = source[x, y];
+
+                    if (force
+                        || _screen == null
+                        || x >= _screen.Columns 
+                        || y >= _screen.Rows 
+                        || sourcePixel != _screen.GetValue(x, y))
+                    {
+                        _console.Write(sourcePixel.Character.ToString(), x, y, sourcePixel.ForeColor, sourcePixel.BackColor);
+                        pixelsUpdated++;
+                    }
+                }
+            }
+
+            _console.SetCursorVisible(priorValue);
+
+            _screen = new Image(source);
+
+            stopwatch.Stop();
+            Debug.WriteLine($"IConsole.DrawImage: pixels updated = {pixelsUpdated}; elapsed ms = {stopwatch.ElapsedMilliseconds}");
+        }
+
+        protected virtual void WriteImage(Image source)
+        {
+            var builder = new StringBuilder();
+
+            builder.Append(Borders.Single.NW)
+                .Append(new string(Borders.Single.Horizontal, source.Columns))
+                .Append(Borders.Single.NE)
+                .AppendLine();
+
+            for (var y = 0; y < source.Rows; y++)
+            {
+                builder.Append(Borders.Single.Vertical);
+
+                for (var x = 0; x < source.Columns; x++)
+                {
+                    builder.Append(source[x, y].Character);
+                }
+
+                builder.Append(Borders.Single.Vertical);
+                builder.AppendLine();
+            }
+
+            builder.Append(Borders.Single.SW)
+                .Append(new string(Borders.Single.Horizontal, source.Columns))
+                .Append(Borders.Single.SE)
+                .AppendLine();
+
+            Debug.WriteLine(builder.ToString());
         }
     }
 }

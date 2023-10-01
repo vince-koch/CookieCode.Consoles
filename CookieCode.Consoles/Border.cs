@@ -1,4 +1,7 @@
-﻿namespace CookieCode.Core.Consoles
+﻿using CookieCode.Consoles.Drivers;
+using System.Drawing;
+
+namespace CookieCode.Core.Consoles
 {
     public interface IBorder
     {
@@ -79,5 +82,41 @@
         public static IBorder Single { get; } = new SingleBorder();
             
         public static IBorder Double { get; } = new DoubleBorder();
+    }
+
+    public static class IBorderExtensions
+    {
+        public static IConsole Write(this IConsole console, string text)
+        {
+            console.Write(text, Color.Transparent, Color.Transparent);
+            return console;
+        }
+
+        public static IConsole DrawBorder(this IConsole console, Rectangle rect, IBorder border)
+        {           
+            for (int y = rect.Top; y <= rect.Bottom; y++)
+            {
+                console.SetCursorPosition(new Point(rect.Left, y));
+
+                if (y == rect.Top)
+                {
+                    console.Write($"{border.NW}{new string(border.Horizontal, rect.Width - 2)}{border.NE}");
+                }
+
+                else if (y < rect.Bottom)
+                {
+                    console.Write(border.Vertical.ToString());
+                    console.SetCursorPosition(new Point(rect.Right, y));
+                    console.Write(border.Vertical.ToString());
+                }
+
+                if (y == rect.Bottom)
+                {
+                    console.Write($"{border.SW}{new string(border.Horizontal, rect.Width - 2)}{border.SE}");
+                }
+            }
+
+            return console;
+        }
     }
 }

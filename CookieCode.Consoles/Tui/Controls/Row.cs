@@ -6,10 +6,10 @@ namespace CookieCode.Consoles.Tui.Controls
     {
         public override void Render(RenderContext context)
         {
-            var windowSize = context.Console.GetWindowSize();
+            var windowSize = context.Size;
             var cellWidths = CalculateCellWidths(windowSize.Width);
 
-            var position = context.Console.GetCursorPosition();
+            //var position = context.Console.GetCursorPosition();
             var children = Children.ToList();
 
             for (var i = 0; i < children.Count; i++)
@@ -18,12 +18,12 @@ namespace CookieCode.Consoles.Tui.Controls
                 if (child.IsVisible)
                 {
                     var x = cellWidths.Take(i).Sum();
-                    context.Console.SetCursorPosition(new Point(x, position.Y));
-                    child.Render(context);
+                    var width = cellWidths[i];
+
+                    var childContext = new RenderContext(context, new Rectangle(x, 0, width, 1));
+                    child.Render(childContext);
                 }
             }
-
-            context.Console.WriteLine();
         }
 
         private int[] CalculateCellWidths(int containerWidth)
