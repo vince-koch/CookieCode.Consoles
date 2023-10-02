@@ -1,7 +1,7 @@
 ﻿using CookieCode.Consoles.Drivers;
 using System.Drawing;
 
-namespace CookieCode.Core.Consoles
+namespace CookieCode.Consoles
 {
     public interface IBorder
     {
@@ -75,7 +75,7 @@ namespace CookieCode.Core.Consoles
         public char Cross { get; } = '╬';
     }
 
-    public static class Borders
+    public static class Border
     {
         public static IBorder Simple { get; } = new SimpleBorder();
 

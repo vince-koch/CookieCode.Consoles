@@ -1,6 +1,6 @@
-﻿namespace CookieCode.Consoles.Tui
+﻿namespace CookieCode.Consoles
 {
-    public static class ConsoleModifiersExtensions
+    public static partial class ExtensionMethods
     {
         public static bool HasAlt(this ConsoleModifiers modifiers)
         {

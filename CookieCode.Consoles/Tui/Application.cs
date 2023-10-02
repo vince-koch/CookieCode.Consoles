@@ -1,7 +1,4 @@
 ﻿using CookieCode.Consoles.Drivers;
-using CookieCode.Core.Consoles;
-
-using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Text;
@@ -203,27 +200,27 @@ namespace CookieCode.Consoles.Tui
         {
             var builder = new StringBuilder();
 
-            builder.Append(Borders.Single.NW)
-                .Append(new string(Borders.Single.Horizontal, source.Columns))
-                .Append(Borders.Single.NE)
+            builder.Append(Border.Single.NW)
+                .Append(new string(Border.Single.Horizontal, source.Columns))
+                .Append(Border.Single.NE)
                 .AppendLine();
 
             for (var y = 0; y < source.Rows; y++)
             {
-                builder.Append(Borders.Single.Vertical);
+                builder.Append(Border.Single.Vertical);
 
                 for (var x = 0; x < source.Columns; x++)
                 {
                     builder.Append(source[x, y].Character);
                 }
 
-                builder.Append(Borders.Single.Vertical);
+                builder.Append(Border.Single.Vertical);
                 builder.AppendLine();
             }
 
-            builder.Append(Borders.Single.SW)
-                .Append(new string(Borders.Single.Horizontal, source.Columns))
-                .Append(Borders.Single.SE)
+            builder.Append(Border.Single.SW)
+                .Append(new string(Border.Single.Horizontal, source.Columns))
+                .Append(Border.Single.SE)
                 .AppendLine();
 
             Debug.WriteLine(builder.ToString());

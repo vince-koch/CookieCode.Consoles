@@ -156,5 +156,42 @@ namespace CookieCode.Consoles.Tui
                     throw new InvalidOperationException($"Unexpected value for alignment [{alignment}]");
             }
         }
+
+        public static RenderContext DrawBorder(
+            this RenderContext context,
+            IBorder? ssborder = null,
+            Rectangle? rectangle = null,
+            Color? foreColor = null,
+            Color? backColor = null)
+        {
+            IBorder border = ssborder == null
+                ? Border.Single
+                : ssborder;
+
+            var rect = rectangle == null
+                ? new Rectangle(Point.Empty, context.Size)
+                : rectangle.Value;
+
+            for (int y = rect.Top; y < rect.Bottom; y++)
+            {
+                if (y == rect.Top)
+                {
+                    context.Write($"{border.NW}{new string(border.Horizontal, rect.Width - 2)}{border.NE}", rect.Left, y, foreColor, backColor);
+                }
+
+                else if (y < rect.Bottom)
+                {
+                    context.Write(border.Vertical.ToString(), rect.Left, y, foreColor, backColor);
+                    context.Write(border.Vertical.ToString(), rect.Right - 1, y, foreColor, backColor);
+                }
+
+                if (y == rect.Bottom - 1)
+                {
+                    context.Write($"{border.SW}{new string(border.Horizontal, rect.Width - 2)}{border.SE}", rect.Left, y, foreColor, backColor);
+                }
+            }
+
+            return context;
+        }
     }
 }

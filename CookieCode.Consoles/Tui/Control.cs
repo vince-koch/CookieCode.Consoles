@@ -12,8 +12,6 @@ namespace CookieCode.Consoles.Tui
 
         public Container? Parent { get; internal set; }
 
-        public Dimension Width { get; set; } = Dimension.Auto();
-
         public virtual void HandleKeyEvent(ConsoleKeyInfoEventArgs e)
         {
             HandleTabKey(e);
@@ -58,6 +56,13 @@ namespace CookieCode.Consoles.Tui
 
     public static class ControlExtensionMethods
     {
+        public static TControl Configure<TControl>(this TControl control, Action<TControl> configure)
+            where TControl : Control
+        {
+            configure(control);
+            return control;
+        }
+
         public static IEnumerable<Control> GetParents(this Control control)
         {
             yield return control;

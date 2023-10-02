@@ -99,6 +99,8 @@ namespace CookieCode.Consoles.Tui.Controls
 
             var back = context.Focus == this ? BackColor.Brightness(.3f) : BackColor;
 
+            context.FillRectangle(new Rectangle(0, 0, context.Size.Width, 1), Color.Transparent, BackColor);
+
             var text = Text.ToString();
             if (string.IsNullOrWhiteSpace(text))
             {

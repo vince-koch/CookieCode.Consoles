@@ -39,7 +39,17 @@ namespace CookieCode.Consoles.Test
             {
                 for (var x = 0; x < 5; x++)
                 {
-                    bodyGrid.SetChild(x, y, new Label($"C{x} R{y}").SetColor(DraculaColors.Green));
+                    if (x == 2 && y == 2)
+                    {
+                        bodyGrid.SetChild(x, y, new GroupBox($"Hello Kitty").SetColor(DraculaColors.Red)
+                            .AddChild(new TextBox()
+                                .Configure(c => c.Text = "Meow")
+                                .Configure(c => c.Placeholder = "What does the dog say?")));
+                    }
+                    else
+                    {
+                        bodyGrid.SetChild(x, y, new Label($"C{x} R{y}").SetColor(DraculaColors.Green));
+                    }
                 }
             }
 

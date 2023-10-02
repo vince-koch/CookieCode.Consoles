@@ -1,6 +1,4 @@
 ﻿using CookieCode.Consoles.Colors;
-using CookieCode.Core.Consoles;
-
 using System.Drawing;
 
 namespace CookieCode.Consoles.Tui.Controls
@@ -18,7 +16,7 @@ namespace CookieCode.Consoles.Tui.Controls
         public override void Render(RenderContext context)
         {
             context.Write(
-                new string(Borders.Single.Horizontal, context.Size.Width),
+                new string(Border.Single.Horizontal, context.Size.Width),
                 Color,
                 Color.Transparent);
         }
