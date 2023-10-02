@@ -46,7 +46,7 @@ namespace CookieCode.Consoles.Tui.Controls
             var back = context.Focus == this ? BackColor.Brightness(.2f) : BackColor;
             var fore = back.FgForBg();
 
-            context.Write(
+            context.WriteText(
                 text: $"[ {Text} ]",
                 foreColor: back.FgForBg(),
                 backColor: back);

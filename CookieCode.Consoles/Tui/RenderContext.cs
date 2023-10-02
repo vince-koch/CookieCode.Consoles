@@ -103,5 +103,58 @@ namespace CookieCode.Consoles.Tui
 
             return context;
         }
+
+        public static RenderContext WriteText(
+            this RenderContext context, 
+            string? text, 
+            ContentAlignment alignment = ContentAlignment.MiddleCenter,
+            Color? foreColor = null,
+            Color? backColor = null)
+        {
+            if (string.IsNullOrEmpty(text))
+            {
+                return context;
+            }
+
+            int leftX() => 0;
+            int rightX() => context.Size.Width - text.Length;
+            int centerX() => context.Size.Center().X - (text.Length / 2);
+            int topY() => 0;
+            int centerY() => context.Size.Center().Y;
+            int bottomY() => context.Size.Height - 1;
+
+            switch (alignment)
+            {
+                case ContentAlignment.BottomCenter:
+                    return context.Write(text, centerX(), bottomY(), foreColor, backColor);
+
+                case ContentAlignment.BottomLeft:
+                    return context.Write(text, leftX(), bottomY(), foreColor, backColor);
+
+                case ContentAlignment.BottomRight:
+                    return context.Write(text, rightX(), bottomY(), foreColor, backColor);
+
+                case ContentAlignment.MiddleCenter:
+                    return context.Write(text, centerX(), centerY(), foreColor, backColor);
+
+                case ContentAlignment.MiddleLeft:
+                    return context.Write(text, leftX(), centerY(), foreColor, backColor);
+
+                case ContentAlignment.MiddleRight:
+                    return context.Write(text, rightX(), centerY(), foreColor, backColor);
+
+                case ContentAlignment.TopCenter:
+                    return context.Write(text, centerX(), topY(), foreColor, backColor);
+
+                case ContentAlignment.TopLeft:
+                    return context.Write(text, leftX(), topY(), foreColor, backColor);
+
+                case ContentAlignment.TopRight:
+                    return context.Write(text, rightX(), topY(), foreColor, backColor);
+
+                default:
+                    throw new InvalidOperationException($"Unexpected value for alignment [{alignment}]");
+            }
+        }
     }
 }

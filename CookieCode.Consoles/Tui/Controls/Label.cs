@@ -29,10 +29,10 @@ namespace CookieCode.Consoles.Tui.Controls
 
         public override void Render(RenderContext context)
         {
-            context.Write(
-                Text,
-                ForeColor,
-                BackColor);
+            context.WriteText(
+                text: Text,
+                foreColor: ForeColor,
+                backColor: BackColor);
         }
     }
 }
