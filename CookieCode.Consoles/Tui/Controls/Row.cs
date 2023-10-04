@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Drawing;
 
 namespace CookieCode.Consoles.Tui.Controls
 {
-    public class Row : Control
+    public class Row : Container
     {
         private readonly List<Dimension> _columnWidths;
         private readonly List<Control> _children;
+
+        public override IEnumerable<Control> Children => _children;
 
         public Row() : this(0)
         {
@@ -18,7 +15,6 @@ namespace CookieCode.Consoles.Tui.Controls
 
         public Row(int columns) : this(Enumerable.Range(0, columns).Select(i => Dimension.Auto()))
         {
-            
         }
 
         public Row(IEnumerable<Dimension> columnWidths)
@@ -46,6 +42,7 @@ namespace CookieCode.Consoles.Tui.Controls
         public Row SetChild(int x, Control control)
         {
             _children[x] = control;
+            control.Parent = this;
             return this;
         }
 
@@ -53,6 +50,7 @@ namespace CookieCode.Consoles.Tui.Controls
         {
             _columnWidths.Add(dimension ?? Dimension.Auto());
             _children.Add(control);
+            control.Parent = this;
             return this;
         }
 

@@ -22,30 +22,33 @@ namespace CookieCode.Consoles.Tui
             if (e.Key.Key == ConsoleKey.Tab)
             {
                 var application = this.GetParent<Application>();
-                if (application != null)
+                if (application == null)
                 {
-                    var flat = application.Flatten().Where(item => item.CanFocus).ToArray();
-                    var currentFocus = application.Focus ?? application;
-                    var currentFocusIndex = Array.IndexOf(flat, currentFocus);
-
-                    var nextFocusIndex = e.Key.Modifiers.HasShift()
-                        ? currentFocusIndex - 1
-                        : currentFocusIndex + 1;
-
-                    if (nextFocusIndex < 0)
-                    {
-                        nextFocusIndex = flat.Length - 1;
-                    }
-                    else if (nextFocusIndex >= flat.Length)
-                    {
-                        nextFocusIndex = 0;
-                    }
-
-                    var nextFocus = flat[nextFocusIndex];
-                    application.Focus = nextFocus ?? currentFocus;
-
-                    e.IsHandled = true;
+                    // if this happens then a container is probably implemented incorrectly
+                    throw new Exception("Unable to identify parent Application.");
                 }
+
+                var flat = application.Flatten().Where(item => item.CanFocus).ToArray();
+                var currentFocus = application.Focus ?? application;
+                var currentFocusIndex = Array.IndexOf(flat, currentFocus);
+
+                var nextFocusIndex = e.Key.Modifiers.HasShift()
+                    ? currentFocusIndex - 1
+                    : currentFocusIndex + 1;
+
+                if (nextFocusIndex < 0)
+                {
+                    nextFocusIndex = flat.Length - 1;
+                }
+                else if (nextFocusIndex >= flat.Length)
+                {
+                    nextFocusIndex = 0;
+                }
+
+                var nextFocus = flat[nextFocusIndex];
+                application.Focus = nextFocus ?? currentFocus;
+
+                e.IsHandled = true;
             }
         }
 

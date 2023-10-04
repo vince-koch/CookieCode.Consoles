@@ -17,9 +17,17 @@ namespace CookieCode.Consoles.Tui.Controls
 
         public BindSource<string?> Placeholder { get; set; } = string.Empty;
 
-        public BindSource<string?> Text { get; set; } = string.Empty;
-
-        private int _cursorIndex = 0;
+        private int _textIndex = 0; 
+        private BindSource<string?> _text = string.Empty;
+        public BindSource<string?> Text
+        {
+            get => _text;
+            set
+            {
+                _text = value;
+                _textIndex = _text.ToString().Length;
+            }
+        }
 
         public override void HandleKeyEvent(ConsoleKeyInfoEventArgs e)
         {
@@ -32,43 +40,43 @@ namespace CookieCode.Consoles.Tui.Controls
             switch (e.Key.Key)
             {
                 case ConsoleKey.Backspace:
-                    if (_cursorIndex > 0)
+                    if (_textIndex > 0)
                     {
-                        _cursorIndex--;
+                        _textIndex--;
                         var charList = Text.ToString().ToCharArray().ToList();
-                        charList.RemoveAt(_cursorIndex);
-                        Text = new string(charList.ToArray());
+                        charList.RemoveAt(_textIndex);
+                        _text = new string(charList.ToArray());
                         e.IsHandled = true;
                     }
                     break;
                         
                 case ConsoleKey.Delete:
-                    if (_cursorIndex < Text.ToString().Length)
+                    if (_textIndex < Text.ToString().Length)
                     {
                         var charList = Text.ToString().ToCharArray().ToList();
-                        charList.RemoveAt(_cursorIndex);
-                        Text = new string(charList.ToArray());
+                        charList.RemoveAt(_textIndex);
+                        _text = new string(charList.ToArray());
                         e.IsHandled = true;
                     }
                     break;
 
                 case ConsoleKey.RightArrow:
-                    _cursorIndex = Math.Min(_cursorIndex + 1, Text.ToString().Length);
+                    _textIndex = Math.Min(_textIndex + 1, Text.ToString().Length);
                     e.IsHandled = true;
                     break;
 
                 case ConsoleKey.LeftArrow:
-                    _cursorIndex = Math.Max(_cursorIndex - 1, 0);
+                    _textIndex = Math.Max(_textIndex - 1, 0);
                     e.IsHandled = true;
                     break;
 
                 case ConsoleKey.Home:
-                    _cursorIndex = 0;
+                    _textIndex = 0;
                     e.IsHandled = true;
                     break;
 
                 case ConsoleKey.End:
-                    _cursorIndex = Text.ToString().Length;
+                    _textIndex = Text.ToString().Length;
                     e.IsHandled = true;
                     break;
 
@@ -81,9 +89,9 @@ namespace CookieCode.Consoles.Tui.Controls
                             || char.IsSeparator(e.Key.KeyChar))
                         {
                             var charList = Text.ToString().ToCharArray().ToList();
-                            charList.Insert(_cursorIndex, e.Key.KeyChar);
-                            Text = new string(charList.ToArray());
-                            _cursorIndex++;
+                            charList.Insert(_textIndex, e.Key.KeyChar);
+                            _text = new string(charList.ToArray());
+                            _textIndex++;
                             e.IsHandled = true;
                         }
                     }
@@ -93,29 +101,56 @@ namespace CookieCode.Consoles.Tui.Controls
 
         public override void Render(RenderContext context)
         {
-            //var cursor = context.Console.GetCursorPosition();
-            //cursor.Offset(_cursorIndex, 0);
-            //Cursor = cursor;
+            // todo: find a better way to do this
+            var cursor = context.GetCursorPosition();
 
+            var fore = ForeColor;
             var back = context.Focus == this ? BackColor.Brightness(.3f) : BackColor;
-
-            context.FillRectangle(new Rectangle(0, 0, context.Size.Width, 1), Color.Transparent, BackColor);
-
             var text = Text.ToString();
-            if (string.IsNullOrWhiteSpace(text))
+            if (string.IsNullOrEmpty(text))
             {
-                context.Write(
-                    Placeholder?.ToString(),
-                    PlaceholderColor,
-                    back);
+                text = Placeholder.ToString();
+                fore = PlaceholderColor;
             }
-            else
+
+            context.FillRectangle(new Rectangle(0, 0, context.Size.Width, 1), Color.Transparent, back);
+
+            (string renderText, int renderIndex) = GetSurroundingText(text, _textIndex, context.Size.Width);
+            context.Write(renderText, fore, back);
+
+            cursor.Offset(renderIndex, 0);
+            Cursor = cursor;
+        }
+
+        private static (string result, int resultIndex) GetSurroundingText(string input, int index, int maxCharacters)
+        {
+            if (input == null)
             {
-                context.Write(
-                    text,
-                    ForeColor,
-                    back);
+                // Handle invalid input
+                return (string.Empty, -1);
             }
+
+            if (index < 0 || index > input.Length || maxCharacters <= 0)
+            {
+                // Handle out-of-bounds index or non-positive maxCharacters
+                return (string.Empty, -1);
+            }
+
+            int startIndex = Math.Max(0, index - maxCharacters / 2);
+            int endIndex = Math.Min(input.Length - 1, startIndex + maxCharacters - 1);
+
+            // Adjust startIndex if needed to ensure maxCharacters characters are selected
+            if (endIndex - startIndex + 1 < maxCharacters)
+            {
+                startIndex = Math.Max(0, endIndex - maxCharacters + 1);
+            }
+
+            string result = input.Substring(startIndex, endIndex - startIndex + 1);
+
+            // Calculate the translation of index into the result string
+            int resultIndex = index - startIndex;
+
+            return (result, resultIndex);
         }
     }
 }

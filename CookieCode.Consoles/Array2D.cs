@@ -1,8 +1,10 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Collections;
+using System.Drawing;
 
 namespace CookieCode.Consoles
 {
-    public class Array2D<T>
+    public class Array2D<T> : IEnumerable<T>
     {
         protected T[,] _items;
         private int _columns;
@@ -164,6 +166,19 @@ namespace CookieCode.Consoles
                     }
                 }
             }
+        }
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            foreach (T item in _items)
+            {
+                yield return item;
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 

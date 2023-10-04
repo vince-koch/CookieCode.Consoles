@@ -42,7 +42,7 @@ namespace CookieCode.Consoles.Test
                     if (x == 2 && y == 2)
                     {
                         bodyGrid.SetChild(x, y, new GroupBox($"Hello Kitty").SetColor(DraculaColors.Red)
-                            .AddChild(new TextBox()
+                            .SetChild(new TextBox()
                                 .Configure(c => c.Text = "Meow")
                                 .Configure(c => c.Placeholder = "What does the dog say?")));
                     }
@@ -59,7 +59,7 @@ namespace CookieCode.Consoles.Test
                 .AddChild(bodyGrid);
 
             new Application(console, DraculaColors.Foreground, DraculaColors.Background)
-                .AddChild(document)
+                .SetChild(document)
                 .Run();
         }
     }

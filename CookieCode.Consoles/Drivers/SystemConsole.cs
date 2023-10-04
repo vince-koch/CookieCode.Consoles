@@ -25,12 +25,17 @@ namespace CookieCode.Consoles.Drivers
                 ? Console.Title
                 : _title;
         }
-        
-        public virtual Point GetCursorPosition()
+
+        //public virtual Point GetCursorPosition()
+        //{
+        //    var (x, y) = Console.GetCursorPosition();
+        //    var point = new Point(x, y);
+        //    return point;
+        //}
+
+        public virtual (int Left, int Top) GetCursorPosition()
         {
-            var (x, y) = Console.GetCursorPosition();
-            var point = new Point(x, y);
-            return point;
+            return Console.GetCursorPosition();
         }
 
         public virtual bool GetCursorVisible()
@@ -50,15 +55,21 @@ namespace CookieCode.Consoles.Drivers
             return new Size(Console.BufferWidth, Console.BufferHeight);
         }
 
+        public virtual IConsole SetCursorPosition(Point cursor)
+        {
+            Console.SetCursorPosition(cursor.X, cursor.Y);
+            return this;
+        }
+
         public virtual IConsole SetCursorPosition(int x, int y)
         {
             Console.SetCursorPosition(x, y);
             return this;
         }
 
-        public virtual IConsole SetCursorPosition(Point cursor)
+        public virtual IConsole SetCursorPosition((int Left, int Top) position)
         {
-            Console.SetCursorPosition(cursor.X, cursor.Y);
+            Console.SetCursorPosition(position.Left, position.Top);
             return this;
         }
 

@@ -6,6 +6,7 @@ namespace CookieCode.Consoles.Tui
     {
         private readonly Image _image;
         private readonly Rectangle _clip;
+        private Point _lastWritePosition;
 
         public Size Size => _clip.Size; 
 
@@ -19,6 +20,7 @@ namespace CookieCode.Consoles.Tui
             Focus = focus;
             _image = image;
             _clip = clip;
+            _lastWritePosition = clip.Location;
         }
 
         public RenderContext(
@@ -30,6 +32,12 @@ namespace CookieCode.Consoles.Tui
             _clip = clip;
             _clip.Offset(context._clip.Location);
             _clip.Intersect(new Rectangle(Point.Empty, _image.Size));
+            _lastWritePosition = _clip.Location;
+        }
+
+        public Point GetCursorPosition()
+        {
+            return _lastWritePosition;
         }
 
         public Pixel? this[int x, int y]
@@ -58,6 +66,7 @@ namespace CookieCode.Consoles.Tui
                     if (_clip.Contains(point))
                     {
                         _image[point.X, point.Y] = value.Value;
+                        _lastWritePosition = point;
                     }
                 }
             }

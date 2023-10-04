@@ -96,7 +96,7 @@ namespace CookieCode.Consoles
         {           
             for (int y = rect.Top; y <= rect.Bottom; y++)
             {
-                console.SetCursorPosition(new Point(rect.Left, y));
+                console.SetCursorPosition(rect.Left, y);
 
                 if (y == rect.Top)
                 {
@@ -106,7 +106,7 @@ namespace CookieCode.Consoles
                 else if (y < rect.Bottom)
                 {
                     console.Write(border.Vertical.ToString());
-                    console.SetCursorPosition(new Point(rect.Right, y));
+                    console.SetCursorPosition(rect.Right, y);
                     console.Write(border.Vertical.ToString());
                 }
 

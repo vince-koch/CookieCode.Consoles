@@ -4,6 +4,10 @@ namespace CookieCode.Consoles.Tui.Controls
 {
     public class GroupBox : Container
     {
+        private readonly List<Control> _children = new List<Control>();
+
+        public override IEnumerable<Control> Children => _children;
+
         public IBorder Border { get; set; } = CookieCode.Consoles.Border.Single;
 
         public Color ForeColor { get; set; } = Color.Gray;
@@ -24,6 +28,14 @@ namespace CookieCode.Consoles.Tui.Controls
         public GroupBox SetColor(Color foreColor)
         {
             ForeColor = foreColor;
+            return this;
+        }
+
+        public GroupBox SetChild(Control control)
+        {
+            _children.Clear();
+            _children.Add(control);
+            control.Parent = this;
             return this;
         }
 

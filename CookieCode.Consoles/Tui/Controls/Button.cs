@@ -43,7 +43,7 @@ namespace CookieCode.Consoles.Tui.Controls
 
         public override void Render(RenderContext context)
         {
-            var back = context.Focus == this ? BackColor.Brightness(.2f) : BackColor;
+            var back = context.Focus == this ? BackColor.Brightness(.3f) : BackColor;
             var fore = back.FgForBg();
 
             context.WriteText(
@@ -51,8 +51,10 @@ namespace CookieCode.Consoles.Tui.Controls
                 foreColor: back.FgForBg(),
                 backColor: back);
 
-            //var (x, y) = Console.GetCursorPosition();
-            //Cursor = new Point(x - 2, y);
+            // todo: find a better way to do this
+            var point = context.GetCursorPosition();
+            point.Offset(-1, 0);
+            Cursor = point;
         }
     }
 }

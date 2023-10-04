@@ -8,10 +8,13 @@ namespace CookieCode.Consoles.Tui
     [DebuggerDisplay("Application")]
     public class Application : Container
     {
+        private readonly List<Control> _children = new List<Control>();
         private readonly IConsole _console;
         private readonly Color _foreColor;
         private readonly Color _backColor;
         private Image _screen;
+
+        public override IEnumerable<Control> Children => _children;
 
         public bool IsExitRequested { get; set; }
 
@@ -38,6 +41,14 @@ namespace CookieCode.Consoles.Tui
             _screen = screen;
         }
 
+        public Application SetChild(Control control)
+        {
+            _children.Clear();
+            _children.Add(control);
+            control.Parent = this;
+            return this;
+        }
+
         public void Run()
         {
             IsExitRequested = false;
@@ -45,6 +56,7 @@ namespace CookieCode.Consoles.Tui
             Console.TreatControlCAsInput = true;
 
             WindowSize = _console.GetWindowSize();
+             var flat = this.Flatten().ToArray();
             Focus = this.Flatten().FirstOrDefault(control => control.CanFocus);
             Render();
 
